@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { TEAMS_COLLECTION } from "../config/constants.js";
-import { closeDb, getDb, logger } from "../config/db.js";
+import { closeDb, getDb } from "../config/db.js";
+import { logger } from "../config/logger.js";
 
 const teams = TEAMS_COLLECTION;
 
@@ -40,6 +41,6 @@ export const getTeamById = async (teamId: string) => {
     }
 };
 
-const result = await createTeam("aa", 1);
+const result = await getTeamById("6a58aa581db51158c71aedc6");
 console.log(result);
 await closeDb();

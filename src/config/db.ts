@@ -1,11 +1,7 @@
 import "dotenv/config";
 import { MongoClient } from "mongodb";
-import pino from "pino";
+import { logger } from "./logger.js";
 import { MONGO_URI, DB_NAME } from "./constants.js";
-
-export const logger = pino({
-    level: "info",
-});
 
 const uri = MONGO_URI;
 

@@ -1,8 +1,11 @@
 import { ObjectId } from "mongodb";
-import { PLAYERS_COLLECTION } from "../config/constants.js";
-import { closeDb, getDb, logger } from "../config/db.js";
+import { PLAYERS_COLLECTION, TEAMS_COLLECTION } from "../config/constants.js";
+import { closeDb, getDb } from "../config/db.js";
+import { logger } from "../config/logger.js";
+import { Player } from "../models/player.model.js";
 
 const players = PLAYERS_COLLECTION;
+const teams = TEAMS_COLLECTION;
 
 export const createPlayer = async (
     playerId: number,
@@ -31,8 +34,11 @@ export const createPlayer = async (
         return insertPlayer;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error(`failed to insert player ${firstName} : ${error.message}`);
+            logger.error(`Faild to createPlayer ${firstName} : ${error.message}`);
+        } else {
+            logger.error(`Failed to getPlayersByTeamAndMinJersey: ${String(error)}`);
         }
+        return undefined;
     }
 };
 
@@ -40,12 +46,13 @@ export const addPlayerToTeam = async (playerId: number, teamId: string) => {
     try {
         const db = getDb();
 
-        const addTeam = await db.collection(players).updateOne({ playerId }, { $set: { team: teamId } });
+        const addTeam = await db.collection(players).updateOne({ playerId }, { $set: { team: new ObjectId(teamId) } });
+
         logger.info(`add player to team successfully`);
-        return;
+        return addTeam;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error(`failed to add player to team : ${error.message}`);
+            logger.error(`Faild to addPlayerToTeam : ${error.message}`);
         }
     }
 };
@@ -59,7 +66,7 @@ export const countPlayers = async (teamId: string) => {
         return total;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error(`failed to count players : ${error.message}`);
+            logger.error(`Faild to countPlayers : ${error.message}`);
         }
     }
 };
@@ -76,12 +83,12 @@ export const getAllPlayersInTeam = async (teamId: string) => {
         return findPlayers;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error(`not found players : ${error.message}`);
+            logger.error(`Faild to getAllPlayersInTeam : ${error.message}`);
         }
     }
 };
 
-export const searchPlayerByName = async (playerName: string) => {
+export const searchPlayerByName = async (playerName: string): Promise<Player[] | undefined> => {
     try {
         const db = getDb();
 
@@ -95,15 +102,43 @@ export const searchPlayerByName = async (playerName: string) => {
             })
             .toArray();
 
-        logger.info(`find players`);
+        if (findPlayer.length === 0) {
+            logger.info(`not found players`);
+        } else {
+            logger.info(`found ${findPlayer.length} players`);
+        }
         return findPlayer;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error(`not found player: ${error.message}`);
+            logger.error(`Faild to searchPlayerByName: ${error.message}`);
         }
     }
 };
 
-const result = await addPlayerToTeam(1, "6a58aa581db51158c71aedc6");
+export const getPlayersByTeamAndMinJersey = async (
+    teamId: string,
+    jerseyNum: number
+): Promise<Player[] | undefined> => {
+    try {
+        const db = getDb();
+
+        const findPlayers = await db
+            .collection<Player>(players)
+            .find({ team: new ObjectId(teamId), jerseyNumber: { $gte: jerseyNum } })
+            .toArray();
+        if (findPlayers.length === 0) {
+            logger.info(`not found players`);
+        } else {
+            logger.info(`found ${findPlayers.length} players`);
+        }
+        return findPlayers;
+    } catch (error) {
+        if (error instanceof Error) {
+            logger.error(`Faild to getPlayersByTeamAndMinJersey: ${error.message}`);
+        }
+    }
+};
+
+const result = await searchPlayerByName("שש");
 console.log(result);
 await closeDb();
