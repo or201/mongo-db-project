@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
+import { DB_NAME, MONGO_URI } from "./constants.js";
 import { logger } from "./logger.js";
-import { MONGO_URI, DB_NAME } from "./constants.js";
 
 const uri = MONGO_URI;
 
@@ -12,21 +12,22 @@ if (!uri) {
 
 const client = new MongoClient(uri);
 
-const connectDb = async () => {
+export const connectDb = async (): Promise<void> => {
     try {
         await client.connect();
+        logger.info("Database connection successfully");
     } catch (error) {
         if (error instanceof Error) {
-            logger.error(`failed to connect to DB: ${error.message}`);
+            logger.error(`Faild to connect to DB: ${error.message}`);
         }
     }
 };
 
-export const getDb = () => {
+export const getDb = (): Db => {
     return client.db(DB_NAME);
 };
 
-export const closeDb = async () => {
+export const closeDb = async (): Promise<void> => {
     try {
         await client.close();
         logger.info("Database connection closed successfully");

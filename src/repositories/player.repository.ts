@@ -1,11 +1,11 @@
-import { ObjectId } from "mongodb";
-import { PLAYERS_COLLECTION, TEAMS_COLLECTION } from "../config/constants.js";
-import { closeDb, getDb } from "../config/db.js";
+import { ObjectId, type DeleteResult, type UpdateResult } from "mongodb";
+import { PLAYERS_COLLECTION } from "../config/constants.js";
+import { getDb } from "../config/db.js";
 import { logger } from "../config/logger.js";
-import { Player } from "../models/player.model.js";
+import { type Player } from "../models/player.model.js";
+import { type TeamPlayerCount } from "../models/teamPlayerCount.model.js";
 
 const players = PLAYERS_COLLECTION;
-const teams = TEAMS_COLLECTION;
 
 export const createPlayer = async (
     playerId: number,
@@ -15,7 +15,7 @@ export const createPlayer = async (
     jerseyNumber: number,
     cost: number,
     team: ObjectId
-) => {
+): Promise<Player | undefined> => {
     try {
         const db = getDb();
 
@@ -29,20 +29,23 @@ export const createPlayer = async (
             team,
         };
 
-        const insertPlayer = await db.collection(players).insertOne(player);
+        const insertPlayer = await db.collection<Player>(players).insertOne(player);
         logger.info(`add player successfully, ID: ${insertPlayer.insertedId}`);
-        return insertPlayer;
+        return {
+            _id: insertPlayer.insertedId,
+            ...player,
+        };
     } catch (error) {
         if (error instanceof Error) {
             logger.error(`Faild to createPlayer ${firstName} : ${error.message}`);
         } else {
-            logger.error(`Failed to getPlayersByTeamAndMinJersey: ${String(error)}`);
+            logger.error(`Failed to createPlayer: ${String(error)}`);
         }
         return undefined;
     }
 };
 
-export const addPlayerToTeam = async (playerId: number, teamId: string) => {
+export const addPlayerToTeam = async (playerId: number, teamId: string): Promise<UpdateResult | undefined> => {
     try {
         const db = getDb();
 
@@ -53,11 +56,14 @@ export const addPlayerToTeam = async (playerId: number, teamId: string) => {
     } catch (error) {
         if (error instanceof Error) {
             logger.error(`Faild to addPlayerToTeam : ${error.message}`);
+        } else {
+            logger.error(`Failed to addPlayerToTeam: ${String(error)}`);
         }
+        return undefined;
     }
 };
 
-export const countPlayers = async (teamId: string) => {
+export const countPlayers = async (teamId: string): Promise<number | undefined> => {
     try {
         const db = getDb();
 
@@ -67,16 +73,19 @@ export const countPlayers = async (teamId: string) => {
     } catch (error) {
         if (error instanceof Error) {
             logger.error(`Faild to countPlayers : ${error.message}`);
+        } else {
+            logger.error(`Failed to countPlayers: ${String(error)}`);
         }
+        return undefined;
     }
 };
 
-export const getAllPlayersInTeam = async (teamId: string) => {
+export const getAllPlayersInTeam = async (teamId: string): Promise<Player[] | undefined> => {
     try {
         const db = getDb();
 
         const findPlayers = await db
-            .collection(players)
+            .collection<Player>(players)
             .find({ team: new ObjectId(teamId) })
             .toArray();
         logger.info(`find ${findPlayers.length} players`);
@@ -84,7 +93,10 @@ export const getAllPlayersInTeam = async (teamId: string) => {
     } catch (error) {
         if (error instanceof Error) {
             logger.error(`Faild to getAllPlayersInTeam : ${error.message}`);
+        } else {
+            logger.error(`Failed to getAllPlayersInTeam: ${String(error)}`);
         }
+        return undefined;
     }
 };
 
@@ -93,7 +105,7 @@ export const searchPlayerByName = async (playerName: string): Promise<Player[] |
         const db = getDb();
 
         const findPlayer = await db
-            .collection(players)
+            .collection<Player>(players)
             .find({
                 $or: [
                     { firstName: { $regex: playerName, $options: "i" } },
@@ -111,7 +123,10 @@ export const searchPlayerByName = async (playerName: string): Promise<Player[] |
     } catch (error) {
         if (error instanceof Error) {
             logger.error(`Faild to searchPlayerByName: ${error.message}`);
+        } else {
+            logger.error(`Failed to searchPlayerByName: ${String(error)}`);
         }
+        return undefined;
     }
 };
 
@@ -135,10 +150,59 @@ export const getPlayersByTeamAndMinJersey = async (
     } catch (error) {
         if (error instanceof Error) {
             logger.error(`Faild to getPlayersByTeamAndMinJersey: ${error.message}`);
+        } else {
+            logger.error(`Failed to getPlayersByTeamAndMinJersey: ${String(error)}`);
         }
+        return undefined;
     }
 };
 
-const result = await searchPlayerByName("שש");
-console.log(result);
-await closeDb();
+export const getTopThreeTeamsMostBrazilianPlayers = async (): Promise<TeamPlayerCount[] | undefined> => {
+    try {
+        const db = getDb();
+
+        const findPlayers = await db
+            .collection(players)
+            .aggregate<TeamPlayerCount>([
+                {
+                    $match: {
+                        nationality: { $regex: /^brazil/i },
+                    },
+                },
+                {
+                    $group: { _id: "$team", totalPlayers: { $sum: 1 } },
+                },
+                {
+                    $sort: { totalPlayers: -1 },
+                },
+                {
+                    $limit: 3,
+                },
+            ])
+            .toArray();
+        return findPlayers;
+    } catch (error) {
+        if (error instanceof Error) {
+            logger.error(`Faild to getTopThreeTeamsMostBrazilianPlayers: ${error.message}`);
+        } else {
+            logger.error(`Failed to getTopThreeTeamsMostBrazilianPlayers: ${String(error)}`);
+        }
+        return undefined;
+    }
+};
+
+export const deletePlayer = async (playerId: number): Promise<DeleteResult | undefined> => {
+    try {
+        const db = getDb();
+
+        const deletedPlayer = await db.collection(players).deleteOne({ playerId });
+        return deletedPlayer;
+    } catch (error) {
+        if (error instanceof Error) {
+            logger.error(`Faild to deletePlayer: ${error.message}`);
+        } else {
+            logger.error(`Failed to deletePlayer: ${String(error)}`);
+        }
+        return undefined;
+    }
+};

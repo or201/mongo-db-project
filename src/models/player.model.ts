@@ -1,6 +1,7 @@
 import type { ObjectId } from "mongodb";
 
 export interface Player {
+    _id?: ObjectId;
     playerId: number;
     firstName: string;
     lastName: string;
