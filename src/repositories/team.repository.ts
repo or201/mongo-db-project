@@ -6,14 +6,11 @@ import type { Team } from "../models/team.model.js";
 
 const teams = TEAMS_COLLECTION;
 
-export const createTeam = async (teamName: string, budget: number): Promise<Team | undefined> => {
+export const createTeam = async (teamName: string, budget: number): Promise<Team | "duplicate" | null> => {
     try {
         const db = getDb();
 
-        const team = {
-            teamName,
-            budget,
-        };
+        const team = { teamName, budget };
 
         const insertTeam = await db.collection(teams).insertOne(team);
         logger.info(`add team successfully, ID: ${insertTeam.insertedId}`);
@@ -22,12 +19,13 @@ export const createTeam = async (teamName: string, budget: number): Promise<Team
             ...team,
         };
     } catch (error) {
-        if (error instanceof Error) {
-            logger.fatal(`failed to createTeam ${teamName}: ${error.message}`);
-        } else {
-            logger.error(`Failed to createTeam: ${String(error)}`);
+        if (typeof error === "object" && error !== null && "code" in error && error.code === 11000) {
+            logger.warn(`Duplicate team name: ${teamName}`);
+            return "duplicate";
         }
-        return undefined;
+
+        logger.error(`Failed to create team: ${String(error)}`);
+        return null;
     }
 };
 
@@ -52,11 +50,16 @@ export const getTeamById = async (teamId: string): Promise<Team | null | undefin
     }
 };
 
-export const deleteTeam = async (teamId: number): Promise<DeleteResult | undefined> => {
+export const deleteTeam = async (teamId: string): Promise<DeleteResult | undefined> => {
     try {
         const db = getDb();
 
-        const deletedTeam = await db.collection(teams).deleteOne({ teamId });
+        const deletedTeam = await db.collection(teams).deleteOne({ _id: new ObjectId(teamId) });
+        if (deletedTeam.deletedCount === 0) {
+            logger.warn(`not found team id: ${teamId}`);
+        } else {
+            logger.info(`delete team successfully - id: ${teamId}`);
+        }
         return deletedTeam;
     } catch (error) {
         if (error instanceof Error) {
