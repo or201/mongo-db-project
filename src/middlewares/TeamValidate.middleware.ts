@@ -1,4 +1,4 @@
-import { type Request, type Response, type NextFunction } from "express";
+import { type NextFunction, type Request, type Response } from "express";
 import { z } from "zod";
 import { logger } from "../config/logger.js";
 
@@ -7,7 +7,7 @@ export const validateTeamRequest = (schema: z.ZodType) => {
         const result = schema.safeParse(req.body);
 
         if (!result.success) {
-            logger.error(result.error.issues[0]?.message)
+            logger.error(result.error.issues[0]?.message);
             return res.status(400).json({
                 message: "Validation failed",
                 errors: result.error.issues,
@@ -22,7 +22,7 @@ export const validateTeamIdParamRequest = (schema: z.ZodType) => {
         const result = schema.safeParse(req.params);
 
         if (!result.success) {
-            logger.error(result.error.issues[0]?.message)
+            logger.error(result.error.issues[0]?.message);
             return res.status(400).json({
                 message: "Validation failed",
                 errors: result.error.issues,
