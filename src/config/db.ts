@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Db, MongoClient } from "mongodb";
-import { DB_NAME, MONGO_URI } from "./constants.js";
+import { DB_NAME, MONGO_URI, TEAMS_COLLECTION } from "./constants.js";
 import { logger } from "./logger.js";
 
 const uri = MONGO_URI;
@@ -36,4 +36,9 @@ export const closeDb = async (): Promise<void> => {
             logger.error(`Failed to close DB connection: ${error.message}`);
         }
     }
+};
+
+export const initTeamIndex = async () => {
+    const db = client.db(DB_NAME);
+    await db.collection(TEAMS_COLLECTION).createIndex({ teamName: 1 }, { unique: true });
 };
