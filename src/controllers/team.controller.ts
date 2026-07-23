@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
-import type { TeamIdParamInput, TeamInput } from "../schemas/team.schema.js";
 import { createTeam, deleteTeam, getTeamById } from "../repositories/team.repository.js";
+import type { TeamIdParamInput, TeamInput } from "../schemas/team.schema.js";
 
 export const createTeamHandler = async (req: Request, res: Response) => {
     try {

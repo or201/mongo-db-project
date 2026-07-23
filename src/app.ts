@@ -1,8 +1,8 @@
 import express, { type Express, type Request, type Response } from "express";
 import { PORT } from "./config/constants.js";
+import { connectDb, initTeamIndex } from "./config/db.js";
 import { logger } from "./config/logger.js";
 import teamRouter from "./routes/team.routes.js";
-import { connectDb, initTeamIndex } from "./config/db.js";
 
 const app: Express = express();
 const port = PORT;
@@ -28,4 +28,4 @@ const run = async () => {
     }
 };
 
-run()
+run();
