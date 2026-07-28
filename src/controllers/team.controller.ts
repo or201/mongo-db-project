@@ -1,11 +1,11 @@
 import { type Request, type Response } from "express";
-import { createTeam, deleteTeam, getTeamById } from "../repositories/team.repository.js";
 import type { TeamIdParamInput, TeamInput } from "../schemas/team.schema.js";
+import { createTeamService, deleteTeamService, getTeamByIdService } from "../services/team.service.js";
 
 export const createTeamHandler = async (req: Request, res: Response) => {
     try {
         const { teamName, budget } = req.body as TeamInput;
-        const team = await createTeam(teamName, budget);
+        const team = await createTeamService(teamName, budget);
         if (team === null) {
             return res.status(500).json("error server");
         } else if (team === "duplicate") {
@@ -18,11 +18,29 @@ export const createTeamHandler = async (req: Request, res: Response) => {
     }
 };
 
+export const getTeamByIdHandler = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params as TeamIdParamInput;
+
+        const team = await getTeamByIdService(id);
+
+        if (team === undefined) {
+            return res.status(500).json("error server");
+        } else if (team === null) {
+            return res.status(404).json("team not found");
+        } else {
+            return res.status(200).json(team);
+        }
+    } catch (error) {
+        return res.status(500).json(`error server: ${error}`);
+    }
+};
+
 export const deleteTeamHandler = async (req: Request, res: Response) => {
     try {
         const { id } = req.params as TeamIdParamInput;
 
-        const deletedTeam = await deleteTeam(id);
+        const deletedTeam = await deleteTeamService(id);
 
         if (!deletedTeam) {
             return res.status(500).json("error server");
@@ -32,24 +50,6 @@ export const deleteTeamHandler = async (req: Request, res: Response) => {
             return res.status(404).json(`team not found`);
         }
         return res.status(200).json(`team deleted successfully`);
-    } catch (error) {
-        return res.status(500).json(`error server: ${error}`);
-    }
-};
-
-export const getTeamByIdHandler = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params as TeamIdParamInput;
-
-        const team = await getTeamById(id);
-
-        if (team === undefined) {
-            return res.status(500).json("error server");
-        } else if (team === null) {
-            return res.status(404).json("team not found");
-        } else {
-            return res.status(200).json(team);
-        }
     } catch (error) {
         return res.status(500).json(`error server: ${error}`);
     }
