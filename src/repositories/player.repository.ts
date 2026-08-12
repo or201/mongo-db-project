@@ -14,35 +14,26 @@ export const createPlayer = async (
     nationality: string,
     jerseyNumber: number,
     cost: number,
-    team: ObjectId
+    team: string
 ): Promise<Player | undefined> => {
-    try {
-        const db = getDb();
+    const db = getDb();
 
-        const player = {
-            playerId,
-            firstName,
-            lastName,
-            nationality,
-            jerseyNumber,
-            cost,
-            team,
-        };
+    const player = {
+        playerId,
+        firstName,
+        lastName,
+        nationality,
+        jerseyNumber,
+        cost,
+        team: new ObjectId(team),
+    };
 
-        const insertPlayer = await db.collection<Player>(players).insertOne(player);
-        logger.info(`add player successfully, ID: ${insertPlayer.insertedId}`);
-        return {
-            _id: insertPlayer.insertedId,
-            ...player,
-        };
-    } catch (error) {
-        if (error instanceof Error) {
-            logger.error(`Faild to createPlayer ${firstName} : ${error.message}`);
-        } else {
-            logger.error(`Failed to createPlayer: ${String(error)}`);
-        }
-        return undefined;
-    }
+    const insertPlayer = await db.collection<Player>(players).insertOne(player);
+
+    return {
+        _id: insertPlayer.insertedId,
+        ...player,
+    };
 };
 
 export const addPlayerToTeam = async (playerId: number, teamId: string): Promise<UpdateResult | undefined> => {

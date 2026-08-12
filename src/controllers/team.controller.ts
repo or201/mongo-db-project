@@ -1,4 +1,4 @@
-import { type Request, type Response } from "express";
+import type { Request, Response } from "express";
 import type { TeamIdParamInput, TeamInput } from "../schemas/team.schema.js";
 import { createTeamService, deleteTeamService, getTeamByIdService } from "../services/team.service.js";
 
