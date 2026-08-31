@@ -1,27 +1,27 @@
 import { Router } from "express";
 import {
-    addPlayerToTeamHandler,
-    countPlayersHandler,
-    createPlayerHandler,
-    deletePlayerHandler,
-    getAllPlayersInTeamHandler,
-    getPlayerByPlayerIdHandler,
-    getPlayersByTeamAndMinJerseyHandler,
-    getTopThreeTeamsMostBrazilianPlayersHandler,
-    searchPlayerByNameHandler,
+  addPlayerToTeamHandler,
+  countPlayersHandler,
+  createPlayerHandler,
+  deletePlayerHandler,
+  getAllPlayersInTeamHandler,
+  getPlayerByPlayerIdHandler,
+  getPlayersByTeamAndMinJerseyHandler,
+  getTopThreeTeamsMostBrazilianPlayersHandler,
+  searchPlayerByNameHandler,
 } from "../controllers/player.controller.js";
 import {
-    validatePlayerIdParamRequest,
-    validatePlayerQueryRequest,
-    validatePlayerRequest,
+  validatePlayerIdParamRequest,
+  validatePlayerQueryRequest,
+  validatePlayerRequest,
 } from "../middlewares/PlayerValidate.middleware.js";
 import {
-    addPlayerToTeamSchema,
-    jerseyParamSchema,
-    playerIdParamSchema,
-    playerSchema,
-    searchPlayerQuerySchema,
-    teamIdParamSchema,
+  addPlayerToTeamSchema,
+  jerseyParamSchema,
+  playerIdParamSchema,
+  playerSchema,
+  searchPlayerQuerySchema,
+  teamIdParamSchema,
 } from "../schemas/player.schema.js";
 
 export const playerRouter = Router();

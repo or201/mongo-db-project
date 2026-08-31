@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Db, MongoClient } from "mongodb";
-import { DB_NAME, MONGO_URI, TEAMS_COLLECTION, PLAYERS_COLLECTION } from "./constants.js";
+import { DB_NAME, MONGO_URI, PLAYERS_COLLECTION, TEAMS_COLLECTION } from "./constants.js";
 import { logger } from "./logger.js";
 
 const uri = MONGO_URI;

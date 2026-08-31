@@ -1,22 +1,22 @@
 import type { Request, Response } from "express";
 import type {
-    AddPlayerToTeamInput,
-    JerseyParamInput,
-    PlayerIdParamInput,
-    PlayerInput,
-    SearchPlayerQueryInput,
-    TeamIdParamInput,
+  AddPlayerToTeamInput,
+  JerseyParamInput,
+  PlayerIdParamInput,
+  PlayerInput,
+  SearchPlayerQueryInput,
+  TeamIdParamInput,
 } from "../schemas/player.schema.js";
 import {
-    addPlayerToTeamService,
-    countPlayersService,
-    createPlayerService,
-    deletePlayerService,
-    getAllPlayersInTeamService,
-    getPlayerByPlayerIdService,
-    getPlayersByTeamAndMinJerseyService,
-    getTopThreeTeamsMostBrazilianPlayersService,
-    searchPlayerByNameService,
+  addPlayerToTeamService,
+  countPlayersService,
+  createPlayerService,
+  deletePlayerService,
+  getAllPlayersInTeamService,
+  getPlayerByPlayerIdService,
+  getPlayersByTeamAndMinJerseyService,
+  getTopThreeTeamsMostBrazilianPlayersService,
+  searchPlayerByNameService,
 } from "../services/player.service.js";
 
 export const createPlayerHandler = async (req: Request, res: Response) => {
