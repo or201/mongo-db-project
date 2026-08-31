@@ -1,6 +1,5 @@
 import type { DeleteResult } from "mongodb";
 import { TEAMS_COLLECTION } from "../config/constants.js";
-import { getDb } from "../config/db.js";
 import { logger } from "../config/logger.js";
 import type { Team } from "../models/team.model.js";
 import { createTeamRepo, deleteTeamRepo, getTeamByIdRepo } from "../repositories/team.repository.js";
@@ -46,7 +45,6 @@ export const getTeamByIdService = async (teamId: string): Promise<Team | null | 
 export const deleteTeamService = async (teamId: string): Promise<DeleteResult | undefined> => {
     try {
         const deletedTeam = await deleteTeamRepo(teamId);
-        console.log(deletedTeam);
         if (deletedTeam.deletedCount === 0) {
             logger.warn(`not found team id: ${teamId}`);
         } else {
