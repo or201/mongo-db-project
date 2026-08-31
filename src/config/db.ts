@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Db, MongoClient } from "mongodb";
-import { DB_NAME, MONGO_URI, TEAMS_COLLECTION } from "./constants.js";
+import { DB_NAME, MONGO_URI, TEAMS_COLLECTION, PLAYERS_COLLECTION } from "./constants.js";
 import { logger } from "./logger.js";
 
 const uri = MONGO_URI;
@@ -41,4 +41,9 @@ export const closeDb = async (): Promise<void> => {
 export const initTeamIndex = async () => {
     const db = client.db(DB_NAME);
     await db.collection(TEAMS_COLLECTION).createIndex({ teamName: 1 }, { unique: true });
+};
+
+export const initPlayerIndex = async () => {
+    const db = client.db(DB_NAME);
+    await db.collection(PLAYERS_COLLECTION).createIndex({ playerId: 1 }, { unique: true });
 };

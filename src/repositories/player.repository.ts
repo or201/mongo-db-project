@@ -4,28 +4,16 @@ import { getDb } from "../config/db.js";
 import { logger } from "../config/logger.js";
 import { type Player } from "../models/player.model.js";
 import { type TeamPlayerCount } from "../models/teamPlayerCount.model.js";
+import type { PlayerInput } from "../schemas/player.schema.js";
 
 const players = PLAYERS_COLLECTION;
 
-export const createPlayer = async (
-    playerId: number,
-    firstName: string,
-    lastName: string,
-    nationality: string,
-    jerseyNumber: number,
-    cost: number,
-    team: string
-): Promise<Player | undefined> => {
+export const createPlayerRepo = async (playerData: PlayerInput): Promise<Player> => {
     const db = getDb();
 
-    const player = {
-        playerId,
-        firstName,
-        lastName,
-        nationality,
-        jerseyNumber,
-        cost,
-        team: new ObjectId(team),
+    const player: Player = {
+        ...playerData,
+        team: new ObjectId(playerData.team),
     };
 
     const insertPlayer = await db.collection<Player>(players).insertOne(player);
@@ -34,6 +22,13 @@ export const createPlayer = async (
         _id: insertPlayer.insertedId,
         ...player,
     };
+};
+
+export const getPlayerByPlayerIdRepo = async (playerId: number): Promise<Player | null> => {
+    const db = getDb();
+    const findPlayer = await db.collection<Player>(players).findOne({ playerId });
+
+    return findPlayer;
 };
 
 export const addPlayerToTeam = async (playerId: number, teamId: string): Promise<UpdateResult | undefined> => {

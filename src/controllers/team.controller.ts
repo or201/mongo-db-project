@@ -10,9 +10,8 @@ export const createTeamHandler = async (req: Request, res: Response) => {
             return res.status(500).json("error server");
         } else if (team === "duplicate") {
             return res.status(409).json(`Team: '${teamName}' already exists`);
-        } else {
-            return res.status(201).json(team);
         }
+        return res.status(201).json(team);
     } catch (error) {
         return res.status(500).json(`error server: ${error}`);
     }
