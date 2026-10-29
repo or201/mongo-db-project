@@ -4,6 +4,7 @@ import { connectDb, initPlayerIndex, initTeamIndex } from "./config/db.js";
 import { logger } from "./config/logger.js";
 import { playerRouter } from "./routes/player.routes.js";
 import teamRouter from "./routes/team.routes.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app: Express = express();
 const port = PORT;
@@ -15,6 +16,8 @@ app.use("/players", playerRouter);
 app.get("/", (req: Request, res: Response) => {
     res.send("Hello World!");
 });
+
+app.use(errorHandler)
 
 const run = async () => {
     try {

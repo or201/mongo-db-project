@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const playerSchema = z.object({
-    playerId: z.number().min(0, "PlayerId cannot be negative").max(1000000000, "PlayerId too high"),
+    playerId: z.number().positive().max(1000000000, "PlayerId too high"),
     firstName: z
         .string()
         .min(2, "Player firstName must be at least 2 characters")

@@ -1,55 +1,26 @@
 import type { Request, Response } from "express";
 import type { TeamIdParamInput, TeamInput } from "../schemas/team.schema.js";
 import { createTeamService, deleteTeamService, getTeamByIdService } from "../services/team.service.js";
+import { ApiError } from "../utils/ApiError.js";
 
-export const createTeamHandler = async (req: Request, res: Response) => {
-    try {
-        const { teamName, budget } = req.body as TeamInput;
-        const team = await createTeamService(teamName, budget);
-        if (team === null) {
-            return res.status(500).json("error server");
-        } else if (team === "duplicate") {
-            return res.status(409).json(`Team: '${teamName}' already exists`);
-        }
-        return res.status(201).json(team);
-    } catch (error) {
-        return res.status(500).json(`error server: ${error}`);
-    }
+export const createTeamHandler = async (req: Request<{}, {}, TeamInput >, res: Response) => {
+    const { teamName, budget } = req.body
+    const team = await createTeamService(teamName, budget);
+    return res.status(201).json(team);
 };
 
-export const getTeamByIdHandler = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params as TeamIdParamInput;
+export const getTeamByIdHandler = async (req: Request<{ id: string }>, res: Response) => {
+    const { id } = req.params;
 
-        const team = await getTeamByIdService(id);
+    const team = await getTeamByIdService(id);
 
-        if (team === undefined) {
-            return res.status(500).json("error server");
-        } else if (team === null) {
-            return res.status(404).json("team not found");
-        } else {
-            return res.status(200).json(team);
-        }
-    } catch (error) {
-        return res.status(500).json(`error server: ${error}`);
-    }
+    return res.status(200).json(team);
 };
 
-export const deleteTeamHandler = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params as TeamIdParamInput;
+export const deleteTeamHandler = async (req: Request<{ id: string }>, res: Response) => {
+    const { id } = req.params;
 
-        const deletedTeam = await deleteTeamService(id);
-
-        if (!deletedTeam) {
-            return res.status(500).json("error server");
-        }
-
-        if (deletedTeam.deletedCount == 0) {
-            return res.status(404).json(`team not found`);
-        }
-        return res.status(200).json(`team deleted successfully`);
-    } catch (error) {
-        return res.status(500).json(`error server: ${error}`);
-    }
+    const deletedTeam = await deleteTeamService(id);
+    
+    return res.status(204).send();
 };
